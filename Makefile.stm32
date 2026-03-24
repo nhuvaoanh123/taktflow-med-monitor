@@ -1,0 +1,37 @@
+# STM32G474RE target build
+CC = arm-none-eabi-gcc
+CFLAGS = -Wall -Wextra -Werror -std=c11 \
+         -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 \
+         -DSTM32G474xx -DPLATFORM_STM32 \
+         -Ifirmware/bsw/include \
+         -Ifirmware/platform/stm32/include \
+         -Ifirmware/drivers/max30102/include \
+         -Ifirmware/drivers/ads1292r/include \
+         -Ifirmware/drivers/mlx90614/include
+
+LDFLAGS = -Tfirmware/platform/stm32/linker/STM32G474RExx_FLASH.ld \
+          -Wl,--gc-sections -specs=nosys.specs
+
+SRC_DIRS = firmware/bsw firmware/ecu/vsm firmware/platform/stm32 firmware/drivers
+SRCS = $(shell find $(SRC_DIRS) -name '*.c' 2>/dev/null)
+OBJS = $(SRCS:%.c=build/stm32/%.o)
+TARGET = build/stm32/med-monitor.elf
+
+.PHONY: all clean flash
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+	arm-none-eabi-size $@
+
+build/stm32/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+flash: $(TARGET)
+	"$(STM32_PROGRAMMER_CLI)" --connect port=SWD --download $< --verify --start
+
+clean:
+	rm -rf build/stm32/

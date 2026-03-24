@@ -1,0 +1,20 @@
+# MISRA C:2012 compliance check
+CPPCHECK = cppcheck
+MISRA_CFG = tools/misra/misra.json
+SUPPRESSIONS = tools/misra/suppressions.txt
+SRC_DIRS = firmware/bsw firmware/ecu firmware/drivers firmware/platform
+
+.PHONY: check
+
+check:
+	$(CPPCHECK) \
+	  --addon=$(MISRA_CFG) \
+	  --suppressions-list=$(SUPPRESSIONS) \
+	  --error-exitcode=1 \
+	  --inline-suppr \
+	  --language=c \
+	  --std=c11 \
+	  -DPLATFORM_POSIX \
+	  -Ifirmware/bsw/include \
+	  -Ifirmware/platform/posix/include \
+	  $(SRC_DIRS)

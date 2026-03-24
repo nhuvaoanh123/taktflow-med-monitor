@@ -1,0 +1,46 @@
+# Build output
+build/
+*.o
+*.elf
+*.bin
+*.hex
+*.map
+*.d
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+venv/
+.env
+
+# Node (web dashboard)
+node_modules/
+.next/
+
+# Test output
+test/hil/reports/*.xml
+test/sil/reports/*.xml
+test/unit/*.xml
+coverage/
+
+# Docker
+docker/**/*.log
+
+# Secrets
+.env.local
+credentials.json
+*.pem
+*.key

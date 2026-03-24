@@ -1,0 +1,68 @@
+project:
+  name: taktflow-med-monitor
+  description: Open-source patient vital signs monitor
+  version: 0.1.0
+  license: BSD-3-Clause
+
+standards:
+  primary:
+    - IEC 62304:2006+AMD1
+    - ISO 14971:2019
+    - ISO 13485:2016
+  secondary:
+    - IEC 60601-1-8 (alarm systems)
+    - MISRA C:2012
+
+classification:
+  iec62304: Class B
+  risk_class: IIa (EU MDR)
+
+hardware:
+  vsm:
+    board: NUCLEO-G474RE
+    mcu: STM32G474RE
+    core: Cortex-M4F @ 170 MHz
+    role: Vital Signs Monitor — sensor acquisition + alarm detection
+  sc:
+    board: LAUNCHXL2-570LC43
+    mcu: TMS570LC4357
+    core: Dual Cortex-R5F (lockstep)
+    role: Safety Controller — independent supervision
+  gw:
+    board: Raspberry Pi 4 Model B
+    role: Gateway — dashboard, MQTT, alarm forwarding
+
+sensors:
+  - name: MAX30102
+    interface: I2C
+    measurement: SpO2 + heart rate (PPG)
+    bus: I2C1 (PB8/PB9)
+  - name: ADS1292R
+    interface: SPI
+    measurement: ECG (2-channel, 24-bit)
+    bus: SPI1 (PA5/PA6/PA7, CS=PA4)
+  - name: MLX90614
+    interface: I2C
+    measurement: Non-contact body temperature
+    bus: I2C1 (PB8/PB9)
+
+communication:
+  can:
+    baudrate: 500000
+    protocol: CAN 2.0B
+    messages:
+      - id: 0x100
+        name: VSM_VitalSigns
+        cycle_ms: 100
+      - id: 0x101
+        name: VSM_ECG_Data
+        cycle_ms: 20
+      - id: 0x102
+        name: VSM_Alarms
+        event: true
+      - id: 0x200
+        name: SC_Heartbeat
+        cycle_ms: 200
+      - id: 0x201
+        name: SC_SafetyStatus
+        cycle_ms: 500

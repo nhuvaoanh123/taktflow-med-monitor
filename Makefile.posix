@@ -1,0 +1,25 @@
+# POSIX SIL build — desktop simulation
+CC = gcc
+CFLAGS = -Wall -Wextra -Werror -std=c11 -DPLATFORM_POSIX \
+         -Ifirmware/bsw/include \
+         -Ifirmware/platform/posix/include
+
+SRC_DIRS = firmware/bsw firmware/ecu/vsm firmware/platform/posix
+SRCS = $(shell find $(SRC_DIRS) -name '*.c' 2>/dev/null)
+OBJS = $(SRCS:%.c=build/posix/%.o)
+TARGET = build/posix/med-monitor-sil
+
+.PHONY: all clean
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -o $@ $^ -lpthread
+
+build/posix/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+clean:
+	rm -rf build/posix/

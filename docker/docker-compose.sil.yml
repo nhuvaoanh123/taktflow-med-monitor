@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  vsm:
+    build:
+      context: ..
+      dockerfile: docker/ecu/Dockerfile
+    container_name: med-monitor-vsm
+    environment:
+      - ECU_ID=VSM
+      - CAN_INTERFACE=vcan0
+    networks:
+      - mednet
+    cap_add:
+      - NET_ADMIN
+
+  gateway:
+    build:
+      context: ..
+      dockerfile: docker/gateway/Dockerfile
+    container_name: med-monitor-gw
+    ports:
+      - "8080:8080"
+      - "1883:1883"
+    environment:
+      - CAN_INTERFACE=vcan0
+    networks:
+      - mednet
+    cap_add:
+      - NET_ADMIN
+
+networks:
+  mednet:
+    driver: bridge

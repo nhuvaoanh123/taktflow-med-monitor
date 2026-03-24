@@ -1,0 +1,28 @@
+# Unit test build
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c11 -DPLATFORM_POSIX -DUNIT_TEST \
+         -Ifirmware/bsw/include \
+         -Ifirmware/platform/posix/include \
+         -Ifirmware/lib/vendor/unity \
+         -Ifirmware/drivers/max30102/include \
+         -Ifirmware/drivers/ads1292r/include \
+         -Ifirmware/drivers/mlx90614/include \
+         -Itest/framework/include
+
+TEST_SRCS = $(shell find test/unit -name '*.c' 2>/dev/null)
+TARGETS = $(TEST_SRCS:test/unit/%.c=build/test/%)
+
+.PHONY: all clean run
+
+all: $(TARGETS)
+
+build/test/%: test/unit/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -o $@ $< -lpthread
+
+run: all
+	@for t in $(TARGETS); do echo "=== $$t ==="; $$t || exit 1; done
+	@echo "All tests passed."
+
+clean:
+	rm -rf build/test/
